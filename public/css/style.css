@@ -36,7 +36,7 @@
 
 .parent .parent-dragable .input-label {
   padding: 7px;
-  border: 1px dashed #11998E;
+  border: 1px dashed #46419D;
   display: block;
   width: 100%;
   text-align: center;
@@ -47,13 +47,13 @@
 }
 
 .parent .parent-dragable .input-label.dragover {
-  background-color: #77D4D4;
+  background-color: #8883e7;
 }
 
 .parent .parent-dragable .input-label .drag-title {
   font-size: 27px;
   font-weight: 700;
-  color: #4BC08B;
+  color: #46419D;
   text-align: center;
   display: inline;
   padding: 0 7px;
@@ -62,4 +62,20 @@
 .parent .parent-dragable .input-file {
   display: none;
 }
-/*# sourceMappingURL=style.css.map */
+
+.parent-upload-loader {
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.3);
+    width: 100vw;
+    height: 100vh;
+}
+
+.parent-upload-loader.active {
+    display: flex;
+}

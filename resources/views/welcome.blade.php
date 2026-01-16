@@ -8,15 +8,20 @@
     </head>
     <body>
     <div class="parent">
-        <div class="parent-dragable">
+        <form class="parent-dragable" method="POST">
+            @csrf
             <label for="addFile" class="input-label" data-content="Choose a File" multiple="false">
                 <p class="drag-title">Select Image Or</p>
                 Just drop your file here
             </label>
             <input type="file" accept="image/*" id="addFile" class="input-file" multiple="false" />
-        </div>
+        </form>
+    </div>
+    <div class="parent-upload-loader">
+        <div data-loader="box-rectangular" loader-color="#46419D" title="Loading..." title-color="#46419D" size="80"></div>
     </div>
     <script type="text/javascript" src="{{ asset('/js/draganddropchunkupload.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/box-rectangular.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/script.js') }}"></script>
     </body>
 </html>
