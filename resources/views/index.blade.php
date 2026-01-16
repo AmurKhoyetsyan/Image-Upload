@@ -8,13 +8,13 @@
     </head>
     <body>
     <div class="parent">
-        <form class="parent-dragable" method="POST">
+        <form class="parent-dragable" method="POST" action="{{ route('image.upload') }}" enctype="multipart/form-data" id="uploadForm">
             @csrf
             <label for="addFile" class="input-label" data-content="Choose a File" multiple="false">
                 <p class="drag-title">Select Image Or</p>
                 Just drop your file here
             </label>
-            <input type="file" accept="image/*" id="addFile" class="input-file" multiple="false" />
+            <input type="file" accept="image/*" id="addFile" name="image" class="input-file" multiple="false" />
         </form>
     </div>
     <div class="parent-upload-loader">
