@@ -17,12 +17,17 @@ class ImageUploadController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
             
-            // Store the original image
+            // Generate unique filename
+            $extension = $file->getClientOriginalExtension();
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $uniqueId = uniqid() . '_' . time() . '_' . substr(md5($originalName . microtime()), 0, 8);
+            $filename = $uniqueId . '.' . $extension;
+            
+            // Store the original image with unique name
             $path = $file->storeAs('images', $filename, 'public');
             
-            // Save to database
+            // Save to database with unique path
             $image = Image::create([
                 'image_original' => $path,
                 'image_edit' => null, // Will be set after Gemini response
