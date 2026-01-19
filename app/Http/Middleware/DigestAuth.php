@@ -19,6 +19,9 @@ class DigestAuth
         $password = config('api.digest_auth.password', env('DIGEST_AUTH_PASSWORD', 'password'));
         $realm = config('api.digest_auth.realm', env('DIGEST_AUTH_REALM', 'Restricted Area'));
 
+        // Remove quotes from realm if present
+        $realm = trim($realm, '"');
+
         // Check if Authorization header is present
         $authHeader = $request->header('Authorization');
         
@@ -35,29 +38,43 @@ class DigestAuth
     private function validateDigestAuth(Request $request, string $authHeader, string $username, string $password, string $realm): bool
     {
         if (!preg_match('/Digest\s+(.*)/i', $authHeader, $matches)) {
+            \Log::debug('DigestAuth: No Digest header found');
             return false;
         }
 
         $digestData = [];
-        preg_match_all('/(\w+)="([^"]+)"/', $matches[1], $matches, PREG_SET_ORDER);
+        // Parse digest parameters - handle both quoted and unquoted values
+        preg_match_all('/(\w+)=(?:"([^"]+)"|([^,\s]+))/', $matches[1], $matches, PREG_SET_ORDER);
         
         foreach ($matches as $match) {
-            $digestData[$match[1]] = $match[2];
+            $key = $match[1];
+            $value = !empty($match[2]) ? $match[2] : $match[3];
+            $digestData[$key] = $value;
         }
+
+        \Log::debug('DigestAuth: Parsed data', $digestData);
 
         // Required fields
         if (!isset($digestData['username'], $digestData['realm'], $digestData['nonce'], 
                    $digestData['uri'], $digestData['response'])) {
+            \Log::debug('DigestAuth: Missing required fields', ['digestData' => $digestData]);
             return false;
         }
 
         // Check username and realm
-        if ($digestData['username'] !== $username || $digestData['realm'] !== $realm) {
+        if ($digestData['username'] !== $username) {
+            \Log::debug('DigestAuth: Username mismatch', ['expected' => $username, 'got' => $digestData['username']]);
+            return false;
+        }
+        
+        if ($digestData['realm'] !== $realm) {
+            \Log::debug('DigestAuth: Realm mismatch', ['expected' => $realm, 'got' => $digestData['realm']]);
             return false;
         }
 
         // Calculate expected response
         $method = $request->method();
+        // Use URI exactly as provided in digest (RFC 2617)
         $uri = $digestData['uri'];
         
         $ha1 = md5($username . ':' . $realm . ':' . $password);
@@ -66,6 +83,7 @@ class DigestAuth
         // Handle qop (quality of protection)
         if (isset($digestData['qop']) && $digestData['qop'] === 'auth') {
             if (!isset($digestData['nc'], $digestData['cnonce'])) {
+                \Log::debug('DigestAuth: Missing nc or cnonce for qop=auth');
                 return false;
             }
             $response = md5($ha1 . ':' . $digestData['nonce'] . ':' . 
@@ -77,7 +95,20 @@ class DigestAuth
             $response = md5($ha1 . ':' . $digestData['nonce'] . ':' . $ha2);
         }
 
-        return hash_equals($digestData['response'], $response);
+        $isValid = hash_equals($digestData['response'], $response);
+        
+        if (!$isValid) {
+            \Log::debug('DigestAuth: Response mismatch', [
+                'expected' => $response,
+                'got' => $digestData['response'],
+                'ha1' => $ha1,
+                'ha2' => $ha2,
+                'uri' => $uri,
+                'method' => $method
+            ]);
+        }
+
+        return $isValid;
     }
 
     /**
