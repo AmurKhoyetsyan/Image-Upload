@@ -16,9 +16,9 @@
             </label>
             <input type="file" accept="image/*" id="addFile" name="image" class="input-file" multiple="false" />
         </form>
-        <div id="gemini-response" style="display: none; margin-top: 20px; padding: 20px; background-color: #f5f5f5; border-radius: 8px; max-width: 500px;">
-            <h3 style="color: #46419D; margin-bottom: 10px;">Ответ от Gemini:</h3>
-            <div id="gemini-text" style="color: #333; line-height: 1.6;"></div>
+        <div id="gemini-response" style="display: none; margin-top: 20px; padding: 20px; background-color: #f5f5f5; border-radius: 8px; max-width: 800px;">
+            <h3 style="color: #46419D; margin-bottom: 15px;">Nutrition Facts Extraction:</h3>
+            <div id="nutrition-data"></div>
         </div>
     </div>
     <div class="parent-upload-loader">
