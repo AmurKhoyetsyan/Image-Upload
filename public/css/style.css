@@ -64,3 +64,7 @@
 .parent-upload-loader.active {
     display: flex;
 }
+
+pre {
+    white-space: break-spaces;
+}
